@@ -36,5 +36,3 @@
 
 
 
-## Contributors
-Srinivasa and Shalini
