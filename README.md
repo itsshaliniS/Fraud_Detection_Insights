@@ -1,4 +1,4 @@
-# Lending Club Case Study
+# Fraud Detection Case Study
 > This case study aims to find the patterns and variables related to Defaulters, based on the Lending Club loan dataset. Defaulters pose a significant loss to the financial institutions, Lending Club in our case, with this study we aim to help them mitigate the loss. 
 
 ## Table of Contents
