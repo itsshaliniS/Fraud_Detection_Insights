@@ -1,10 +1,8 @@
-name: 🧪 Run Python Tests
+name: Python Tests
 
 on:
   push:
-    branches: [main]
   pull_request:
-    branches: [main]
 
 jobs:
   test:
@@ -17,21 +15,26 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.10"
+          python-version: '3.10'
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-          pip install pytest jupyter
+          pip install -r requirements.txt
+          pip install jupyter nbconvert pytest
 
-      - name: Run Python tests
+      - name: Run all notebooks
         run: |
-          if [ -d tests ]; then pytest -v; else echo "No tests folder found"; fi
-
-      - name: Execute Jupyter notebooks
-        run: |
+          mkdir -p output_notebooks
           for nb in *.ipynb; do
             echo "Running $nb"
-            jupyter nbconvert --to notebook --execute "$nb" --output /dev/null
+            jupyter nbconvert --to notebook --execute "$nb" --output "output_notebooks/${nb%.ipynb}_executed.ipynb"
           done
+
+      - name: Run pytest (if available)
+        run: |
+          if [ -d "tests" ]; then
+            pytest -v
+          else
+            echo "No tests folder found, skipping pytest"
+          fi
