@@ -38,17 +38,17 @@ jobs:
         run: |
           if [ -d tests ]; then pytest -v; else echo "No tests folder found. Skipping unit tests."; fi
 
-      - name: Execute Jupyter notebooks (Fixed)
+      - name: Execute Jupyter notebooks (Fixed Space Error)
         run: |
           echo "Checking Jupyter notebooks for execution errors..."
-          # Install the 'null' writer if available, or stick to the robust method below.
-          # Stick to the robust method: use a temporary output file and discard it.
           for nb in *.ipynb; do
             echo "Running $nb"
-            # Execute the notebook, writing the output to a harmless temporary location in /tmp
+            # 1. Execute the notebook to /tmp
             jupyter nbconvert --to notebook --execute "$nb" --output-dir /tmp
-            # Clean up the temporary output file immediately
-            rm /tmp/$(basename "$nb")
+            
+            # 2. Use quotes around the filename to correctly handle spaces
+            # Use 'basename' to get just the filename from the path
+            rm "/tmp/$(basename "$nb")" 
           done
 
       - name: Run pytest (if available)
