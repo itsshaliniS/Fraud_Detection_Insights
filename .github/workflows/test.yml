@@ -1,34 +1,54 @@
 name: Python Tests
 
 on:
+  # Triggers the workflow on push or pull request events to the 'main' branch
   push:
   pull_request:
 
 jobs:
   test:
+    # Specifies the runner environment for the job
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
+        # Downloads a copy of your repository's code
         uses: actions/checkout@v4
 
       - name: Set up Python
+        # Configures the specified Python version
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
       - name: Install dependencies
+        # Installs all necessary packages
         run: |
+          # Upgrade pip to the latest version
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install jupyter nbconvert pytest
+          
+          # Install dependencies from requirements.txt if the file exists
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          
+          # Install testing and notebook execution tools
+          pip install pytest jupyter
 
-      - name: Run all notebooks
+      - name: Run Python tests
+        # Executes pytest if a 'tests' directory is found
         run: |
-          mkdir -p output_notebooks
+          if [ -d tests ]; then pytest -v; else echo "No tests folder found. Skipping unit tests."; fi
+
+      - name: Execute Jupyter notebooks (Fixed Space Error)
+        run: |
+          echo "Checking Jupyter notebooks for execution errors..."
           for nb in *.ipynb; do
             echo "Running $nb"
-            jupyter nbconvert --to notebook --execute "$nb" --output "output_notebooks/${nb%.ipynb}_executed.ipynb"
+            # 1. Execute the notebook to /tmp
+            jupyter nbconvert --to notebook --execute "$nb" --output-dir /tmp
+            
+            # 2. Use quotes around the filename to correctly handle spaces
+            # Use 'basename' to get just the filename from the path
+            rm "/tmp/$(basename "$nb")" 
           done
 
       - name: Run pytest (if available)
