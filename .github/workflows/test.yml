@@ -1,11 +1,9 @@
-name: 🧪 Run Python Tests
+name: Python Tests
 
 on:
   # Triggers the workflow on push or pull request events to the 'main' branch
   push:
-    branches: [main]
   pull_request:
-    branches: [main]
 
 jobs:
   test:
@@ -21,7 +19,7 @@ jobs:
         # Configures the specified Python version
         uses: actions/setup-python@v5
         with:
-          python-version: "3.10"
+          python-version: '3.10'
 
       - name: Install dependencies
         # Installs all necessary packages
@@ -49,3 +47,11 @@ jobs:
             # Use nbconvert to execute the notebook and suppress output to keep logs clean
             jupyter nbconvert --to notebook --execute "$nb" --output /dev/null
           done
+
+      - name: Run pytest (if available)
+        run: |
+          if [ -d "tests" ]; then
+            pytest -v
+          else
+            echo "No tests folder found, skipping pytest"
+          fi
